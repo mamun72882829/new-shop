@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CTC Coin Shop - Online Top-Up</title>
+    <title>CTC Shop - Online Shopping</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -50,14 +50,14 @@
                 <div class="relative z-10 flex-1">
                     <div class="flex items-center gap-2 mb-1">
                         <span class="bg-blue-500/20 text-blue-400 border border-blue-500/30 text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <i class="fa fa-bolt text-amber-400"></i> ইনস্ট্যান্ট টপ-আপ
+                            <i class="fa fa-bolt text-amber-400"></i> Best Buy
                         </span>
                         <span class="text-[9px] text-green-400 font-medium flex items-center gap-1">
                             <i class="fa fa-circle text-[6px] animate-pulse"></i> ১০০% বিশ্বস্ত
                         </span>
                     </div>
                     <h2 id="heroTitleDisplay" class="font-extrabold text-xs sm:text-sm text-white tracking-tight leading-tight">
-                        সেরা দামে গেমিং ও <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">কয়েন টপ-আপ</span>
+                        সেরা দামে আকর্ষণীয় <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">সকল প্রোডাক্ট ও সামগ্রী</span>
                     </h2>
                 </div>
 
@@ -202,7 +202,7 @@
             <form onsubmit="submitOrder(event)" class="space-y-4">
                 <input type="text" id="custName" required placeholder="আপনার নাম" class="w-full bg-neutral-800 text-white border-none p-3 rounded-lg outline-none focus:ring-1 focus:ring-blue-500 text-xs">
                 <input type="tel" id="custPhone" required readonly placeholder="মোবাইল নম্বর" class="w-full bg-neutral-800/60 text-gray-400 border-none p-3 rounded-lg outline-none cursor-not-allowed text-xs">
-                <textarea id="custAddress" required placeholder="Player UID / আইডি ডিটেইলস এবং প্রয়োজনীয় তথ্য..." class="w-full bg-neutral-800 text-white border-none p-3 rounded-lg outline-none focus:ring-1 focus:ring-blue-500 text-xs" rows="3"></textarea>
+                <textarea id="custAddress" required placeholder="আপনার সম্পূর্ণ ঠিকানা ও ফোন নম্বর..." class="w-full bg-neutral-800 text-white border-none p-3 rounded-lg outline-none focus:ring-1 focus:ring-blue-500 text-xs" rows="3"></textarea>
                 <div class="bg-neutral-800 p-3 rounded-lg text-xs text-gray-300">পণ্য: <span id="orderProductName" class="font-bold text-white"></span><br>মূল্য: <span id="orderProductPrice" class="font-bold text-blue-400"></span></div>
                 <div class="flex gap-2"><button type="button" onclick="closeOrderForm()" class="flex-1 bg-neutral-700 py-3 rounded-lg font-bold text-white text-xs">বাতিল</button><button type="submit" class="flex-1 bg-[#2563eb] text-white py-3 rounded-lg font-bold text-xs">অর্ডার কনফার্ম করুন</button></div>
             </form>
