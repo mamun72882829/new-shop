@@ -127,7 +127,7 @@
         <div id="order-list" class="space-y-3"></div>
     </div>
 
-    <!-- Messages Page (Adjusted Height & Bottom Margin so typing area is lifted up) -->
+    <!-- Messages Page -->
     <div id="messages" class="page flex-page p-2.5 sm:p-3 max-w-md mx-auto h-[calc(100dvh-115px)] sm:h-[calc(100vh-115px)] flex flex-col justify-between overflow-hidden pb-2">
         <!-- Header -->
         <div class="flex-shrink-0 relative overflow-hidden bg-gradient-to-r from-blue-900/40 via-neutral-900 to-indigo-900/40 border border-blue-500/20 p-2.5 sm:p-3 rounded-2xl mb-2 shadow-lg shadow-blue-950/30">
@@ -179,7 +179,7 @@
             </div>
         </div>
 
-        <!-- Message Input Box (Elevated slightly higher with margin) -->
+        <!-- Message Input Box -->
         <div class="flex-shrink-0 bg-neutral-900/90 backdrop-blur-md p-1 rounded-2xl border border-neutral-800 shadow-xl relative mb-3">
             <form onsubmit="sendMessage(event)" class="flex items-center gap-1.5">
                 <input id="msgBody" required placeholder="এখানে বার্তা লিখুন..." class="flex-1 bg-neutral-800/80 text-white placeholder-gray-500 border border-neutral-700/50 px-3.5 py-2.5 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-xs transition">
@@ -275,6 +275,7 @@
         let activeProductId = null;
         let isModalSignup = true;
         let isAccountSignup = false;
+        let activePageId = 'home';
 
         /* --- Category Auto-Scroll Logic --- */
         let categoryAutoScrollTimer = null;
@@ -383,11 +384,16 @@
             }
             document.getElementById('authModal').classList.remove('hidden');
             document.getElementById('authModal').classList.add('flex');
+            
+            history.pushState({ modal: 'authModal', page: activePageId }, '', '#auth');
         }
 
-        function closeAuth() {
+        function closeAuth(fromBack = false) {
             document.getElementById('authModal').classList.add('hidden');
             document.getElementById('authModal').classList.remove('flex');
+            if (!fromBack && history.state && history.state.modal === 'authModal') {
+                history.back();
+            }
         }
 
         function handleAuth(e) {
@@ -645,16 +651,29 @@
             
             document.getElementById('productModal').classList.remove('hidden');
             document.getElementById('productModal').classList.add('flex');
+
+            history.pushState({ modal: 'productModal', productId: id, page: activePageId }, '', '#product');
         }
 
-        function closeProduct() { document.getElementById('productModal').classList.add('hidden'); }
-        function closeOrderForm() { document.getElementById('orderFormModal').classList.add('hidden'); }
+        function closeProduct(fromBack = false) { 
+            document.getElementById('productModal').classList.add('hidden'); 
+            if (!fromBack && history.state && history.state.modal === 'productModal') {
+                history.back();
+            }
+        }
+
+        function closeOrderForm(fromBack = false) { 
+            document.getElementById('orderFormModal').classList.add('hidden'); 
+            if (!fromBack && history.state && history.state.modal === 'orderFormModal') {
+                history.back();
+            }
+        }
 
         /* --- Order Processing --- */
         function openOrderForm() {
             const userPhone = localStorage.getItem('userPhone');
             if (!userPhone) {
-                closeProduct();
+                closeProduct(true);
                 isModalSignup = true;
                 openAuthModal(true);
                 return;
@@ -667,6 +686,8 @@
             
             document.getElementById('orderFormModal').classList.remove('hidden'); 
             document.getElementById('orderFormModal').classList.add('flex');
+
+            history.pushState({ modal: 'orderFormModal', page: activePageId }, '', '#order');
         }
 
         function submitOrder(e) {
@@ -849,28 +870,72 @@
             });
         }
 
-        /* --- Page Routing --- */
-        function showPage(id, btn, resetHome = true) {
+        /* --- Page Routing & UI Updates --- */
+        function renderPageUI(id) {
+            activePageId = id;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const targetPage = document.getElementById(id);
             if(targetPage) targetPage.classList.add('active');
-            
+
+            const navMap = { home: 0, categories: 1, orders: 2, messages: 3, account: 4 };
             document.querySelectorAll('.nav-btn').forEach(n => n.classList.remove('nav-active'));
-            if(btn) btn.classList.add('nav-active');
-            
-            if(id === 'home' && resetHome) {
-                const searchInput = document.getElementById('searchInput');
-                if(searchInput) searchInput.value = '';
-                loadProducts();
+            if(navMap[id] !== undefined) {
+                const navBtns = document.querySelectorAll('.nav-btn');
+                if(navBtns[navMap[id]]) navBtns[navMap[id]].classList.add('nav-active');
             }
+
+            if(id === 'home') loadProducts();
             if(id === 'categories') loadCategories();
             if(id === 'orders') loadMyOrders();
             if(id === 'account') loadAccount();
             if(id === 'messages') loadMyMessages();
         }
 
+        function showPage(id, btn, resetHome = true, pushHistory = true) {
+            if (pushHistory && history.state?.page !== id) {
+                history.pushState({ page: id }, '', '#' + id);
+            }
+            
+            if(id === 'home' && resetHome) {
+                const searchInput = document.getElementById('searchInput');
+                if(searchInput) searchInput.value = '';
+            }
+            renderPageUI(id);
+        }
+
+        /* --- Browser Back Button Handling (Popstate) --- */
+        window.onpopstate = function(event) {
+            const orderFormModal = document.getElementById('orderFormModal');
+            const productModal = document.getElementById('productModal');
+            const authModal = document.getElementById('authModal');
+
+            // ১. যদি কোনো পপআপ/মডাল খোলা থাকে, তবে সেটি বন্ধ করবে
+            if (!orderFormModal.classList.contains('hidden')) {
+                closeOrderForm(true);
+                return;
+            }
+            if (!productModal.classList.contains('hidden')) {
+                closeProduct(true);
+                return;
+            }
+            if (!authModal.classList.contains('hidden')) {
+                closeAuth(true);
+                return;
+            }
+
+            // ২. মডাল খোলা না থাকলে ব্যাক বাটন চাপলে আগের পেজে অথবা হোম পেজে নিয়ে যাবে
+            if (event.state && event.state.page) {
+                renderPageUI(event.state.page);
+            } else {
+                renderPageUI('home');
+            }
+        };
+
         /* Initialization */
         window.onload = () => { 
+            if (!history.state) {
+                history.replaceState({ page: 'home' }, '', '#home');
+            }
             syncSiteSettings();
             loadCategories(); 
             loadProducts(); 
